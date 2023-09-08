@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using System.Data;
-using LibraryBookService_Trainline.Interfaces;
 using LibraryBookService_Trainline.Models.Configuration;
+using LibraryBookService_Trainline.Interfaces.DAL;
 
 namespace LibraryBookService_Trainline.DAL.Polly
 {

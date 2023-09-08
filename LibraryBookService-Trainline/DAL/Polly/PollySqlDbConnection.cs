@@ -2,7 +2,7 @@
 using System.Data.SqlClient;
 using System.Data;
 using LibraryBookService_Trainline.DAL;
-using LibraryBookService_Trainline.Interfaces;
+using LibraryBookService_Trainline.Interfaces.DAL;
 
 namespace LibraryBookService_Trainline.DAL.Polly
 {

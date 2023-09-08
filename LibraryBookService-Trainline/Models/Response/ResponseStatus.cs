@@ -1,6 +1,6 @@
 ﻿namespace LibraryBookService_Trainline.Models.Response
 {
-    public class GeneralResponse
+    public class ResponseStatus
     {
         public int? Code { get; set; } = null;
 

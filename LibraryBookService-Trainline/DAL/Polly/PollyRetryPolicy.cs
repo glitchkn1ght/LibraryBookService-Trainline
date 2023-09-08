@@ -1,7 +1,7 @@
 ﻿using Polly;
 using Polly.Retry;
 using System.Data.SqlClient;
-using LibraryBookService_Trainline.Interfaces;
+using LibraryBookService_Trainline.Interfaces.DAL;
 
 namespace LibraryBookService_Trainline.DAL.Polly
 {

@@ -1,4 +1,4 @@
-﻿namespace LibraryBookService_Trainline.Interfaces
+﻿namespace LibraryBookService_Trainline.Interfaces.DAL
 {
     public interface IPollyRetryPolicy
     {
