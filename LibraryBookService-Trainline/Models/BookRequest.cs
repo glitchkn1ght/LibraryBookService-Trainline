@@ -2,19 +2,16 @@
 
 namespace LibraryBookService_Trainline.Models
 {
-    public class Book
+    public class BookRequest
     {
-        public Book() { }
+        public BookRequest() { }
         
-        public Book(Guid id, string title, string author, DateOnly publicationDate)
+        public BookRequest(string title, string author, DateOnly publicationDate)
         {
-            Id = id;
             Title = title;
             Author = author;
             PublicationDate = publicationDate;
         }
-
-        public Guid Id { get; set; }
 
         [Required(AllowEmptyStrings = false)]
         [DisplayFormat(ConvertEmptyStringToNull = false)]

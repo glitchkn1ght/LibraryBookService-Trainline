@@ -1,3 +1,11 @@
+using LibraryBookService_Trainline.DAL.Repositories;
+using LibraryBookService_Trainline.Interfaces.DAL;
+using LibraryBookService_Trainline.Interfaces.Service;
+using LibraryBookService_Trainline.Models.Response;
+using LibraryBookService_Trainline.Service;
+using LibraryBookService_Trainline.Validation;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using System.Reflection;
 
@@ -13,35 +21,42 @@ namespace LibraryBookService_Trainline.App
                  loggerConfig.ReadFrom.Configuration(hostingContext.Configuration));
 
             // Add services to the container.
-
-
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            
-            builder.Services.AddSwaggerGen(c =>
+            builder.Services.AddScoped<IBookRepository, InMemoryBookRepository>();
+            builder.Services.AddScoped<IBookService, BookService>();
+            builder.Services.AddControllers().ConfigureApiBehaviorOptions(a =>
             {
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                c.IncludeXmlComments(xmlPath);
-            });
+                a.InvalidModelStateResponseFactory = context =>
+                {
+                    var problemDetails = new CustomBadRequest(context);
+
+                    var response = new GeneralResponse();
+
+                    response.ResponseStatus.Code = -101;
+                    response.ResponseStatus.Message = problemDetails.Title;
+                    response.ResponseStatus.ValidationErrorDetails = problemDetails.Errors;
+
+                    return new BadRequestObjectResult(response)
+                    {
+                        ContentTypes = { "application / problem + json", "application / problem + xml" }
+                    };
+                };
+            }); 
+
+            builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
+                app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(options =>
-                {
-                    options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-                    options.RoutePrefix = string.Empty;
-                });
+                app.UseSwaggerUI();
             }
 
-            app.UseRouting();
-
             app.UseHttpsRedirection();
+
+            app.UseRouting();
 
             app.UseAuthorization();
 
@@ -51,7 +66,6 @@ namespace LibraryBookService_Trainline.App
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");
             });
-           // app.MapControllers();
 
             app.Run();
         }
