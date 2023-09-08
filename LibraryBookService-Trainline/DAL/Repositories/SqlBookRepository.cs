@@ -1,6 +1,6 @@
 ﻿using Dapper;
 using LibraryBookService_Trainline.Interfaces.DAL;
-using LibraryBookService_Trainline.Models;
+using LibraryBookService_Trainline.Models.Books;
 using LibraryBookService_Trainline.Models.Configuration;
 using Microsoft.Extensions.Options;
 using System.Data;

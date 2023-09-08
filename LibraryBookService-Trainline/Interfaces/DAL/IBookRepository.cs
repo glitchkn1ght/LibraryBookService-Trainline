@@ -1,4 +1,4 @@
-﻿using LibraryBookService_Trainline.Models;
+﻿using LibraryBookService_Trainline.Models.Books;
 
 namespace LibraryBookService_Trainline.Interfaces.DAL
 {

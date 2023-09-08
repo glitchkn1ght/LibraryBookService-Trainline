@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace LibraryBookService_Trainline.Models
+namespace LibraryBookService_Trainline.Models.Books
 {
     public class Book
     {
         public Book() { }
-        
-        public Book(Guid id, string title, string author, DateOnly publicationDate)
+
+        public Book(Guid id, string title, string author, DateTime publicationDate)
         {
             Id = id;
             Title = title;
@@ -16,14 +16,10 @@ namespace LibraryBookService_Trainline.Models
 
         public Guid Id { get; set; }
 
-        [Required(AllowEmptyStrings = false)]
-        [DisplayFormat(ConvertEmptyStringToNull = false)]
         public string Title { get; set; } = string.Empty;
 
-        [Required(AllowEmptyStrings = false)]
-        [DisplayFormat(ConvertEmptyStringToNull = false)]
         public string Author { get; set; } = string.Empty;
 
-        public DateOnly PublicationDate { get; set; }
+        public DateTime PublicationDate { get; set; }
     }
 }

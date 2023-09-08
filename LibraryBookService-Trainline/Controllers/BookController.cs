@@ -1,6 +1,7 @@
 using LibraryBookService_Trainline.Interfaces.Service;
-using LibraryBookService_Trainline.Models;
+using LibraryBookService_Trainline.Models.Books;
 using LibraryBookService_Trainline.Models.Response;
+using LibraryBookService_Trainline.Validation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryBookService_Trainline.Controllers
@@ -11,23 +12,31 @@ namespace LibraryBookService_Trainline.Controllers
     public class BookController : ControllerBase
     {
         private readonly ILogger<BookController> _logger;
+        private readonly IModelStateValidator _modelStateValidator;
         private readonly IBookService _bookService;
 
-        public BookController(ILogger<BookController> logger, IBookService bookService)
+        public BookController(ILogger<BookController> logger, IModelStateValidator modelStateValidator ,IBookService bookService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _modelStateValidator = modelStateValidator ?? throw new ArgumentNullException(nameof(modelStateValidator));
             _bookService = bookService ?? throw new ArgumentNullException(nameof(bookService));
         }
 
         [HttpGet(Name = "GetBookById/{bookId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SingleBookResponse))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralResponse))]
-        public async Task<IActionResult> GetBookById(Guid bookId)
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(SingleBookResponse))]
+        public async Task<IActionResult> GetBookById([NotEmpty] Guid bookId)
         {
             SingleBookResponse response = new SingleBookResponse();
 
             try 
             {
+                if (!ModelState.IsValid)
+                {
+                    response.ResponseStatus = _modelStateValidator.MapModelStateErrors(ModelState, response.ResponseStatus);
+                    return BadRequest(response);
+                }
+
                 response = await _bookService.GetBook(bookId);
 
                 return new OkObjectResult(response);
@@ -75,6 +84,12 @@ namespace LibraryBookService_Trainline.Controllers
 
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    response.ResponseStatus = _modelStateValidator.MapModelStateErrors(ModelState, response.ResponseStatus);
+                    return BadRequest(response);
+                }
+
                 Book bookToAdd = new Book(Guid.NewGuid(), bookRequest.Title, bookRequest.Author, bookRequest.PublicationDate);
 
                 response = await _bookService.InsertNewBook(bookToAdd);
@@ -93,14 +108,20 @@ namespace LibraryBookService_Trainline.Controllers
         }
 
         [HttpDelete]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SingleBookResponse))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(SingleBookResponse))]
-        public async Task<IActionResult> DeleteBook(Guid bookId)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralResponse))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralResponse))]
+        public async Task<IActionResult> DeleteBook([NotEmpty] Guid bookId)
         {
             GeneralResponse response = new GeneralResponse();
 
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    response.ResponseStatus = _modelStateValidator.MapModelStateErrors(ModelState, response.ResponseStatus);
+                    return BadRequest(response);
+                }
+
                 response = await _bookService.DeleteBook(bookId);
 
                 return new OkObjectResult(response);
@@ -108,7 +129,7 @@ namespace LibraryBookService_Trainline.Controllers
 
             catch (Exception ex)
             {
-                _logger.LogError($"[Operation=GetBook], Status=Failure, Message=Exception Thrown, details {ex.Message}");
+                _logger.LogError($"[Operation=DeleteBook], Status=Failure, Message=Exception Thrown, details {ex.Message}");
 
                 response.ResponseStatus.Code = 500;
                 response.ResponseStatus.Message = "Internal Server Error";
@@ -117,15 +138,21 @@ namespace LibraryBookService_Trainline.Controllers
         }
 
         [HttpPatch]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SingleBookResponse))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(SingleBookResponse))]
-        public async Task<IActionResult> UpdateBook(BookRequest bookRequest)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralResponse))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralResponse))]
+        public async Task<IActionResult> UpdateBook(BookRequest updateBookRequest)
         {
             GeneralResponse response = new GeneralResponse();
 
             try
             {
-                Book book = new Book(Guid.NewGuid(), bookRequest.Title, bookRequest.Author, bookRequest.PublicationDate);
+                if (!ModelState.IsValid)
+                {
+                    response.ResponseStatus = _modelStateValidator.MapModelStateErrors(ModelState, response.ResponseStatus);
+                    return BadRequest(response);
+                }
+
+                Book book = new Book(Guid.NewGuid(), updateBookRequest.Title, updateBookRequest.Author, updateBookRequest.PublicationDate);
 
                 response = await _bookService.UpdateBook(book);
 
@@ -134,7 +161,7 @@ namespace LibraryBookService_Trainline.Controllers
 
             catch (Exception ex)
             {
-                _logger.LogError($"[Operation=GetBook], Status=Failure, Message=Exception Thrown, details {ex.Message}");
+                _logger.LogError($"[Operation=UpdateBook], Status=Failure, Message=Exception Thrown, details {ex.Message}");
 
                 response.ResponseStatus.Code = 500;
                 response.ResponseStatus.Message = "Internal Server Error";

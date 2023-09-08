@@ -1,12 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using LibraryBookService_Trainline.Validation;
+using System.ComponentModel.DataAnnotations;
 
-namespace LibraryBookService_Trainline.Models
+namespace LibraryBookService_Trainline.Models.Books
 {
     public class BookRequest
     {
         public BookRequest() { }
-        
-        public BookRequest(string title, string author, DateOnly publicationDate)
+
+        public BookRequest(string title, string author, DateTime publicationDate)
         {
             Title = title;
             Author = author;
@@ -21,6 +22,8 @@ namespace LibraryBookService_Trainline.Models
         [DisplayFormat(ConvertEmptyStringToNull = false)]
         public string Author { get; set; } = string.Empty;
 
-        public DateOnly PublicationDate { get; set; }
+        [Required(AllowEmptyStrings = false)]
+        [DateInPast]
+        public DateTime PublicationDate { get; set; }
     }
 }

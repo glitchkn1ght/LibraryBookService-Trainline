@@ -1,6 +1,6 @@
 ﻿using LibraryBookService_Trainline.Interfaces.DAL;
 using LibraryBookService_Trainline.Interfaces.Service;
-using LibraryBookService_Trainline.Models;
+using LibraryBookService_Trainline.Models.Books;
 using LibraryBookService_Trainline.Models.Response;
 
 namespace LibraryBookService_Trainline.Service

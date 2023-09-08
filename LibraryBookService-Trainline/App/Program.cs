@@ -6,6 +6,7 @@ using LibraryBookService_Trainline.Service;
 using LibraryBookService_Trainline.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Serilog;
 using System.Reflection;
 
@@ -21,25 +22,12 @@ namespace LibraryBookService_Trainline.App
                  loggerConfig.ReadFrom.Configuration(hostingContext.Configuration));
 
             // Add services to the container.
+            builder.Services.AddScoped<IModelStateValidator, ModelStateValidator>();
             builder.Services.AddScoped<IBookRepository, InMemoryBookRepository>();
             builder.Services.AddScoped<IBookService, BookService>();
             builder.Services.AddControllers().ConfigureApiBehaviorOptions(a =>
             {
-                a.InvalidModelStateResponseFactory = context =>
-                {
-                    var problemDetails = new CustomBadRequest(context);
-
-                    var response = new GeneralResponse();
-
-                    response.ResponseStatus.Code = -101;
-                    response.ResponseStatus.Message = problemDetails.Title;
-                    response.ResponseStatus.ValidationErrorDetails = problemDetails.Errors;
-
-                    return new BadRequestObjectResult(response)
-                    {
-                        ContentTypes = { "application / problem + json", "application / problem + xml" }
-                    };
-                };
+                a.SuppressModelStateInvalidFilter = true;
             }); 
 
             builder.Services.AddSwaggerGen();

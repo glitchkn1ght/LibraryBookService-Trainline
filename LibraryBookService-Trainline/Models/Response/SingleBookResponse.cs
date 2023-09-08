@@ -1,4 +1,6 @@
-﻿namespace LibraryBookService_Trainline.Models.Response
+﻿using LibraryBookService_Trainline.Models.Books;
+
+namespace LibraryBookService_Trainline.Models.Response
 {
     public class SingleBookResponse : GeneralResponse
     {   
