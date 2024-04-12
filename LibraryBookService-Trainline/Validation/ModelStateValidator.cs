@@ -3,12 +3,8 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace LibraryBookService_Trainline.Validation
 {
-    public interface IModelStateValidator
-    {
-        ResponseStatus MapModelStateErrors(ModelStateDictionary modelState, ResponseStatus responseStatus);
-    }
 
-    public class ModelStateValidator : IModelStateValidator
+    public class ModelStateErrorMapper : IModelStateErrorMapper
     {
         public ResponseStatus MapModelStateErrors(ModelStateDictionary modelState, ResponseStatus responseStatus)
         {

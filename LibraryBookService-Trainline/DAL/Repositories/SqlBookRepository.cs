@@ -4,6 +4,7 @@ using LibraryBookService_Trainline.Models.Books;
 using LibraryBookService_Trainline.Models.Configuration;
 using Microsoft.Extensions.Options;
 using System.Data;
+using System.Net;
 
 namespace LibraryBookService_Trainline.DAL.Repositories
 {
@@ -69,6 +70,7 @@ namespace LibraryBookService_Trainline.DAL.Repositories
             {
                 var parameters = new DynamicParameters();
 
+                parameters.Add("@BookId", book.Id);
                 parameters.Add("@Author", book.Author);
                 parameters.Add("@Title", book.Title);
                 parameters.Add("@PublicationDate", book.PublicationDate);

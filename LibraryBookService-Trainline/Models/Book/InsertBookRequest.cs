@@ -3,11 +3,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LibraryBookService_Trainline.Models.Books
 {
-    public class BookRequest
+    public class InsertBookRequest
     {
-        public BookRequest() { }
+        public InsertBookRequest() { }
 
-        public BookRequest(string title, string author, DateTime publicationDate)
+        public InsertBookRequest(string title, string author, DateTime publicationDate)
         {
             Title = title;
             Author = author;

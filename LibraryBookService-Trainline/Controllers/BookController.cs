@@ -12,19 +12,20 @@ namespace LibraryBookService_Trainline.Controllers
     public class BookController : ControllerBase
     {
         private readonly ILogger<BookController> _logger;
-        private readonly IModelStateValidator _modelStateValidator;
+        private readonly IModelStateErrorMapper _modelStateErrorMapper;
         private readonly IBookService _bookService;
 
-        public BookController(ILogger<BookController> logger, IModelStateValidator modelStateValidator ,IBookService bookService)
+        public BookController(ILogger<BookController> logger, IModelStateErrorMapper modelStateErrorMapper, IBookService bookService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _modelStateValidator = modelStateValidator ?? throw new ArgumentNullException(nameof(modelStateValidator));
+            _modelStateErrorMapper = modelStateErrorMapper ?? throw new ArgumentNullException(nameof(modelStateErrorMapper));
             _bookService = bookService ?? throw new ArgumentNullException(nameof(bookService));
         }
 
         [HttpGet(Name = "GetBookById/{bookId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SingleBookResponse))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(SingleBookResponse))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleBookResponse))]
         public async Task<IActionResult> GetBookById([NotEmpty] Guid bookId)
         {
             SingleBookResponse response = new SingleBookResponse();
@@ -33,7 +34,7 @@ namespace LibraryBookService_Trainline.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    response.ResponseStatus = _modelStateValidator.MapModelStateErrors(ModelState, response.ResponseStatus);
+                    response.ResponseStatus = _modelStateErrorMapper.MapModelStateErrors(ModelState, response.ResponseStatus);
                     return BadRequest(response);
                 }
 
@@ -54,12 +55,15 @@ namespace LibraryBookService_Trainline.Controllers
 
         [HttpGet("GetAllBooks")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MultiBookResponse))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleBookResponse))]
         public async Task<IActionResult> GetAllBooks()
         {
             MultiBookResponse response = new MultiBookResponse();
 
             try
             {
+                _logger.LogInformation("Obtaining books. Recticulating Splines.");
+
                 response = await _bookService.GetAllBooks();
 
                 return new OkObjectResult(response);
@@ -78,7 +82,7 @@ namespace LibraryBookService_Trainline.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SingleBookResponse))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(SingleBookResponse))]
-        public async Task<IActionResult> InsertBook([FromBody] BookRequest bookRequest)
+        public async Task<IActionResult> InsertBook([FromBody] InsertBookRequest bookRequest)
         {
             GeneralResponse response = new GeneralResponse();
 
@@ -86,7 +90,7 @@ namespace LibraryBookService_Trainline.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    response.ResponseStatus = _modelStateValidator.MapModelStateErrors(ModelState, response.ResponseStatus);
+                    response.ResponseStatus = _modelStateErrorMapper.MapModelStateErrors(ModelState, response.ResponseStatus);
                     return BadRequest(response);
                 }
 
@@ -118,7 +122,7 @@ namespace LibraryBookService_Trainline.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    response.ResponseStatus = _modelStateValidator.MapModelStateErrors(ModelState, response.ResponseStatus);
+                    response.ResponseStatus = _modelStateErrorMapper.MapModelStateErrors(ModelState, response.ResponseStatus);
                     return BadRequest(response);
                 }
 
@@ -140,7 +144,7 @@ namespace LibraryBookService_Trainline.Controllers
         [HttpPatch]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralResponse))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralResponse))]
-        public async Task<IActionResult> UpdateBook(BookRequest updateBookRequest)
+        public async Task<IActionResult> UpdateBook(Book updateBookRequest)
         {
             GeneralResponse response = new GeneralResponse();
 
@@ -148,13 +152,13 @@ namespace LibraryBookService_Trainline.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    response.ResponseStatus = _modelStateValidator.MapModelStateErrors(ModelState, response.ResponseStatus);
+                    response.ResponseStatus = _modelStateErrorMapper.MapModelStateErrors(ModelState, response.ResponseStatus);
                     return BadRequest(response);
                 }
 
-                Book book = new Book(Guid.NewGuid(), updateBookRequest.Title, updateBookRequest.Author, updateBookRequest.PublicationDate);
+         
 
-                response = await _bookService.UpdateBook(book);
+                response = await _bookService.UpdateBook(updateBookRequest);
 
                 return new OkObjectResult(response);
             }

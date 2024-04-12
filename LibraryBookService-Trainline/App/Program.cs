@@ -1,6 +1,7 @@
 using LibraryBookService_Trainline.DAL.Repositories;
 using LibraryBookService_Trainline.Interfaces.DAL;
 using LibraryBookService_Trainline.Interfaces.Service;
+using LibraryBookService_Trainline.Models.Configuration;
 using LibraryBookService_Trainline.Models.Response;
 using LibraryBookService_Trainline.Service;
 using LibraryBookService_Trainline.Validation;
@@ -22,7 +23,10 @@ namespace LibraryBookService_Trainline.App
                  loggerConfig.ReadFrom.Configuration(hostingContext.Configuration));
 
             // Add services to the container.
-            builder.Services.AddScoped<IModelStateValidator, ModelStateValidator>();
+            var repoConfig = builder.Configuration.GetSection("BookRepository");
+            builder.Services.Configure<BookRepositorySettings>(repoConfig);
+
+            builder.Services.AddScoped<IModelStateErrorMapper, ModelStateErrorMapper>();
             builder.Services.AddScoped<IBookRepository, InMemoryBookRepository>();
             builder.Services.AddScoped<IBookService, BookService>();
             builder.Services.AddControllers().ConfigureApiBehaviorOptions(a =>
